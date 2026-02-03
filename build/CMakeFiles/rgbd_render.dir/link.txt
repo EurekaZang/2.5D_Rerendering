@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/librgbd_render.a CMakeFiles/rgbd_render.dir/src/render/egl_context.cpp.o CMakeFiles/rgbd_render.dir/src/render/gl_renderer.cpp.o CMakeFiles/rgbd_render.dir/src/render/shader.cpp.o CMakeFiles/rgbd_render.dir/src/render/framebuffer.cpp.o CMakeFiles/rgbd_render.dir/external/glad/src/glad.c.o
+/usr/bin/ranlib lib/librgbd_render.a

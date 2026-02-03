@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/librgbd_mesh.a CMakeFiles/rgbd_mesh.dir/src/mesh/mesh_generator.cpp.o CMakeFiles/rgbd_mesh.dir/src/mesh/depth_mesh.cpp.o
+/usr/bin/ranlib lib/librgbd_mesh.a

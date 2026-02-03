@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/librgbd_io.a CMakeFiles/rgbd_io.dir/src/io/image_io.cpp.o CMakeFiles/rgbd_io.dir/src/io/depth_io.cpp.o
+/usr/bin/ranlib lib/librgbd_io.a

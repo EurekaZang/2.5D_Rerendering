@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/librgbd_app.a CMakeFiles/rgbd_app.dir/src/app/config.cpp.o
+/usr/bin/ranlib lib/librgbd_app.a

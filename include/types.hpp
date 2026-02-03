@@ -97,21 +97,32 @@ struct RenderOutput {
 // Depth discontinuity thresholds
 struct DepthThresholds {
     float tau_rel = 0.05f;   // Relative threshold (5%)
-    float tau_abs = 0.1f;    // Absolute threshold (10cm)
+    float tau_abs = 0.1f;    // Absolute threshold (10cm) - used as minimum
     
     DepthThresholds() = default;
     DepthThresholds(float rel, float abs) : tau_rel(rel), tau_abs(abs) {}
     
     // Check if two depth values have a discontinuity
+    // Uses adaptive thresholding: the absolute threshold scales with depth
     bool isDiscontinuity(float z1, float z2) const {
         if (!std::isfinite(z1) || !std::isfinite(z2)) return true;
         if (z1 <= 0 || z2 <= 0) return true;
         
         float diff = std::abs(z1 - z2);
         float min_z = std::min(z1, z2);
+        float max_z = std::max(z1, z2);
         
-        // Check both relative and absolute thresholds
-        return (diff / min_z > tau_rel) || (diff > tau_abs);
+        // Relative threshold: break if relative difference is too large
+        float rel_diff = diff / min_z;
+        if (rel_diff > tau_rel) return true;
+        
+        // Adaptive absolute threshold: scales with depth
+        // For close objects (z < 2m), use tau_abs directly
+        // For far objects, scale proportionally
+        float adaptive_abs = tau_abs * std::max(1.0f, max_z / 2.0f);
+        if (diff > adaptive_abs) return true;
+        
+        return false;
     }
 };
 

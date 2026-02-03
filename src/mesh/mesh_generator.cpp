@@ -12,16 +12,25 @@ void MeshGenerator::setThresholds(const DepthThresholds& thresholds) {
 }
 
 Vertex MeshGenerator::backproject(float u, float v, float z, const Intrinsics& K) {
-    // Back-project pixel to 3D camera space
-    // X = (u - cx) * z / fx
-    // Y = (v - cy) * z / fy
-    // Z = z
-    float X = (u - K.cx) * z / K.fx;
-    float Y = (v - K.cy) * z / K.fy;
+    // Back-project pixel center to 3D camera space
+    // The pixel (u, v) covers the area [u, u+1) x [v, v+1)
+    // Its center is at (u + 0.5, v + 0.5)
+    //
+    // Using pixel center for both 3D position and texture coordinates
+    // ensures consistency when rendering back at the same focal length
+    float u_center = u + 0.5f;
+    float v_center = v + 0.5f;
     
-    // Compute texture coordinates (normalized)
-    float tex_u = (u + 0.5f) / static_cast<float>(K.width);
-    float tex_v = (v + 0.5f) / static_cast<float>(K.height);
+    // Back-project using pixel center
+    // X = (u_center - cx) * z / fx
+    // Y = (v_center - cy) * z / fy
+    // Z = z
+    float X = (u_center - K.cx) * z / K.fx;
+    float Y = (v_center - K.cy) * z / K.fy;
+    
+    // Compute texture coordinates (normalized) - also using pixel center
+    float tex_u = u_center / static_cast<float>(K.width);
+    float tex_v = v_center / static_cast<float>(K.height);
     
     return Vertex(X, Y, z, tex_u, tex_v);
 }

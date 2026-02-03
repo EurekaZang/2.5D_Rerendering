@@ -222,11 +222,18 @@ void GLRenderer::createProjectionMatrix(const Intrinsics& K,
     // Our camera space: X right, Y down, Z forward (looking into +Z)
     // OpenGL clip space: X right, Y up, Z into screen, NDC in [-1,1]
     //
-    // For pinhole camera:
+    // For pinhole camera projection:
     //   u = fx * X/Z + cx
     //   v = fy * Y/Z + cy
     //
-    // We need x_ndc = 2*u/W - 1, y_ndc = 1 - 2*v/H (flip Y)
+    // Converting to NDC:
+    //   x_ndc = 2*u/W - 1 = 2*fx*X/(W*Z) + (2*cx/W - 1)
+    //   y_ndc = 1 - 2*v/H = -2*fy*Y/(H*Z) + (1 - 2*cy/H)
+    //
+    // In clip space (before perspective divide by w=Z):
+    //   clip_x = 2*fx/W * X + (2*cx/W - 1) * Z
+    //   clip_y = -2*fy/H * Y + (1 - 2*cy/H) * Z
+    //   clip_w = Z
     
     float W = static_cast<float>(K.width);
     float H = static_cast<float>(K.height);
@@ -242,14 +249,13 @@ void GLRenderer::createProjectionMatrix(const Intrinsics& K,
     // [2]  [6]  [10] [14]
     // [3]  [7]  [11] [15]
     
-    // Standard OpenGL projection from intrinsics, adapted for +Z forward camera:
-    // We use w = Z (positive Z forward), so matrix[11] = 1, not -1
-    matrix[0] = 2.0f * K.fx / W;
-    matrix[5] = -2.0f * K.fy / H;                       // Flip Y (camera Y down -> NDC Y up)
-    matrix[8] = -(2.0f * K.cx / W - 1.0f);              // cx offset (negated for correct handedness)
-    matrix[9] = -(1.0f - 2.0f * K.cy / H);              // cy offset (negated for correct handedness)
+    // Projection matrix mapping camera space to clip space
+    matrix[0] = 2.0f * K.fx / W;                        // X scaling
+    matrix[5] = -2.0f * K.fy / H;                       // Y scaling (flip Y: camera Y down -> NDC Y up)
+    matrix[8] = 2.0f * K.cx / W - 1.0f;                 // cx offset in NDC
+    matrix[9] = 1.0f - 2.0f * K.cy / H;                 // cy offset in NDC (with Y flip)
     matrix[10] = (f + n) / (f - n);                     // Depth mapping
-    matrix[11] = 1.0f;                                   // w = Z (not -Z)
+    matrix[11] = 1.0f;                                   // w = Z (positive Z forward)
     matrix[14] = -2.0f * f * n / (f - n);               // Depth offset
     matrix[15] = 0.0f;
 }
